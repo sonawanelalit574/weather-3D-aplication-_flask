@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>3D Weather Earth</title>
+
+        <!-- Flask CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+        {% if google_maps_api_key %}
+        <!-- Google Maps 3D -->
+        <script async
+            src="https://maps.googleapis.com/maps/api/js?loading=async&key={{ google_maps_api_key|e }}&libraries=maps3d">
+            </script>
+        {% endif %}
+    </head>
+
+    <body>
+
+        <!-- ========================================================= -->
+        <!-- LOADING -->
+        <!-- ========================================================= -->
+
+        <div id="loading" class="loading">
+            <div class="loader"></div>
+            <div class="loading-text">
+                Loading 3D Earth...
+            </div>
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- MAIN APPLICATION -->
+        <!-- ========================================================= -->
+
+        <main class="app-shell">
+
+
+            <!-- ===================================================== -->
+            <!-- 3D EARTH -->
+            <!-- ===================================================== -->
+
+            <section class="earth-panel">
+
+                {% if google_maps_api_key %}
+
+                <gmp-map-3d id="earth" mode="HYBRID" center="20,0,25000000" range="25000000" tilt="0" heading="0">
+                </gmp-map-3d>
+
+                {% else %}
+
+                <div class="api-missing">
+
+                    <div class="api-icon">
+                        🌍
+                    </div>
+
+                    <h2>
+                        Google Maps API Key Required
+                    </h2>
+
+                    <p>
+                        Add <strong>GOOGLE_MAPS_API_KEY</strong>
+                        to your <strong>.env</strong> file.
+                    </p>
+
+                    <p class="small">
+                        Restart Flask after adding the API key.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- ================================================= -->
+                <!-- BRAND -->
+                <!-- ================================================= -->
+
+                <div class="brand">
+
+                    <div class="brand-icon">
+                        🌍
+                    </div>
+
+                    <div class="brand-text">
+
+                        <strong>
+                            3D Weather Earth
+                        </strong>
+
+                        <small>
+                            Explore weather around the world
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- SEARCH -->
+                <!-- ================================================= -->
+
+                <div class="search-card">
+
+                    <div class="search-title">
+                        🔎 Explore a Location
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <!-- COUNTRY -->
+
+                        <label class="field">
+
+                            <span>
+                                Country
+                            </span>
+
+                            <select id="country">
+
+                                <option value="">
+                                    🌎 All Countries
+                                </option>
+
+                                <option value="IN">
+                                    🇮🇳 India
+                                </option>
+
+                                <option value="US">
+                                    🇺🇸 United States
+                                </option>
+
+                                <option value="GB">
+                                    🇬🇧 United Kingdom
+                                </option>
+
+                                <option value="CA">
+                                    🇨🇦 Canada
+                                </option>
+
+                                <option value="AU">
+                                    🇦🇺 Australia
+                                </option>
+
+                                <option value="DE">
+                                    🇩🇪 Germany
+                                </option>
+
+                                <option value="FR">
+                                    🇫🇷 France
+                                </option>
+
+                                <option value="IT">
+                                    🇮🇹 Italy
+                                </option>
+
+                                <option value="ES">
+                                    🇪🇸 Spain
+                                </option>
+
+                                <option value="JP">
+                                    🇯🇵 Japan
+                                </option>
+
+                                <option value="CN">
+                                    🇨🇳 China
+                                </option>
+
+                                <option value="SG">
+                                    🇸🇬 Singapore
+                                </option>
+
+                                <option value="AE">
+                                    🇦🇪 UAE
+                                </option>
+
+                                <option value="SA">
+                                    🇸🇦 Saudi Arabia
+                                </option>
+
+                                <option value="BR">
+                                    🇧🇷 Brazil
+                                </option>
+
+                                <option value="ZA">
+                                    🇿🇦 South Africa
+                                </option>
+
+                                <option value="NZ">
+                                    🇳🇿 New Zealand
+                                </option>
+
+                                <option value="RU">
+                                    🇷🇺 Russia
+                                </option>
+
+                            </select>
+
+                        </label>
+
+
+                        <!-- CITY -->
+
+                        <label class="field">
+
+                            <span>
+                                City
+                            </span>
+
+                            <input id="city" type="text" value="Pune" autocomplete="off"
+                                placeholder="Enter city e.g. Pune">
+
+                        </label>
+
+
+                        <!-- SEARCH BUTTON -->
+
+                        <button id="searchBtn" class="primary-btn" type="button">
+
+                            🌍 Explore
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- QUICK CITIES -->
+
+                    <div class="quick-row">
+
+                        <button class="quick-city" type="button" data-city="Pune" data-country="IN">
+
+                            Pune 🇮🇳
+
+                        </button>
+
+                        <button class="quick-city" type="button" data-city="London" data-country="GB">
+
+                            London 🇬🇧
+
+                        </button>
+
+                        <button class="quick-city" type="button" data-city="New York" data-country="US">
+
+                            New York 🇺🇸
+
+                        </button>
+
+                        <button class="quick-city" type="button" data-city="Tokyo" data-country="JP">
+
+                            Tokyo 🇯🇵
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- ERROR -->
+
+                    <div id="error" class="error hidden">
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MAP CONTROLS -->
+                <!-- ================================================= -->
+
+                <div class="earth-controls">
+
+                    <button id="globeBtn" type="button">
+
+                        🌎 Globe
+
+                    </button>
+
+                    <button id="satelliteBtn" type="button">
+
+                        🛰️ Satellite
+
+                    </button>
+
+                    <button id="hybridBtn" type="button">
+
+                        🗺️ Hybrid
+
+                    </button>
+
+                </div>
+
+
+                <!-- LOCATION BUTTON -->
+
+                <button id="locationBtn" class="location-btn" type="button">
+
+                    📍 My Location
+
+                </button>
+
+
+                <!-- MAP MARKER -->
+
+                <div id="mapMarker" class="map-marker hidden">
+
+                    📍
+
+                </div>
+
+            </section>
+
+
+            <!-- ===================================================== -->
+            <!-- WEATHER DASHBOARD -->
+            <!-- ===================================================== -->
+
+            <aside id="dashboard" class="dashboard">
+
+
+                <!-- ================================================= -->
+                <!-- DASHBOARD HEADER -->
+                <!-- ================================================= -->
+
+                <div class="dashboard-header">
+
+                    <div class="location-info">
+
+                        <div id="locationName" class="location-name">
+
+                            Select a City
+
+                        </div>
+
+                        <div id="locationCountry" class="location-country">
+
+                            Search a location to see weather
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="conditionEmoji" class="big-emoji">
+
+                        🌍
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- CONDITION -->
+                <!-- ================================================= -->
+
+                <div id="conditionPill" class="condition-pill neutral">
+
+                    🌎 Waiting for location
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- TEMPERATURE -->
+                <!-- ================================================= -->
+
+                <div class="temperature">
+
+                    <span id="temperature">
+                        --
+                    </span>
+
+                    <sup>
+                        °C
+                    </sup>
+
+                </div>
+
+
+                <div class="feels">
+
+                    Feels like
+
+                    <strong id="feelsLike">
+                        --
+                    </strong>
+
+                    °C
+
+                </div>
+
+
+                <div id="description" class="description">
+
+                    Search for a city to load live weather.
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- METRICS -->
+                <!-- ================================================= -->
+
+                <div class="metrics">
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            💧
+                        </span>
+
+                        <b id="humidity">
+                            --
+                        </b>
+
+                        <small>
+                            Humidity
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            💨
+                        </span>
+
+                        <b id="wind">
+                            --
+                        </b>
+
+                        <small>
+                            Wind km/h
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            ☁️
+                        </span>
+
+                        <b id="clouds">
+                            --
+                        </b>
+
+                        <small>
+                            Clouds
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            🌧️
+                        </span>
+
+                        <b id="rainChance">
+                            --
+                        </b>
+
+                        <small>
+                            Rain Chance
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            ☀️
+                        </span>
+
+                        <b id="uv">
+                            --
+                        </b>
+
+                        <small>
+                            UV Index
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span class="metric-icon">
+                            👁️
+                        </span>
+
+                        <b id="visibility">
+                            --
+                        </b>
+
+                        <small>
+                            Visibility km
+                        </small>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- SAFETY -->
+                <!-- ================================================= -->
+
+                <section class="card">
+
+                    <div class="card-title">
+                        🛡️ Safety & Precautions
+                    </div>
+
+                    <div id="precautions" class="precautions">
+
+                        <div class="empty">
+                            Weather safety suggestions will appear here.
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- INSIGHTS -->
+                <!-- ================================================= -->
+
+                <section class="card">
+
+                    <div class="card-title">
+                        💡 Smart Weather Insights
+                    </div>
+
+                    <div id="insights" class="insights">
+
+                        <div class="empty">
+                            Search a city to generate insights.
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- 7 DAY FORECAST -->
+                <!-- ================================================= -->
+
+                <section class="card">
+
+                    <div class="card-title">
+                        📅 7-Day Forecast
+                    </div>
+
+                    <div id="forecast" class="forecast">
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- HOURLY -->
+                <!-- ================================================= -->
+
+                <section class="card">
+
+                    <div class="card-title">
+                        🕐 Next 24 Hours
+                    </div>
+
+                    <div id="hourly" class="hourly">
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================================================= -->
+                <!-- FOOTER -->
+                <!-- ================================================= -->
+
+                <div class="footer-note">
+
+                    Weather data:
+                    <strong>Open-Meteo</strong>
+
+                    <span>·</span>
+
+                    3D map:
+                    <strong>Google Maps Platform</strong>
+
+                </div>
+
+
+            </aside>
+
+        </main>
+
+
+        <!-- ========================================================= -->
+        <!-- JAVASCRIPT -->
+        <!-- ========================================================= -->
+
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    </body>
+
+</html>
